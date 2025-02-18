@@ -3,13 +3,14 @@
 //
 //
 //
-#define MAX_HISTORY_SIZE 19
+#include <stdbool.h>
+#define MAX_HISTORY_SIZE 20
 
 char** parse(char input [512]); // Tokenises the user input, so that the shell can read the input and decide which actions to take, char* tokens[]
 
 void clearBuffer(char *);
 
-void runCommands(char**); // Runs custom commands that aren't executables.
+void runCommands(char**, bool); // Runs custom commands that aren't executables.
 
 int executeSystemCommand(char **);
 
@@ -19,6 +20,10 @@ void setPath(char**);   // Sets the current system path as specified by the user
 
 void changeDirectory(char**);   // Changes the current working directory of the system.
 
-bool isHistoryCommand(char** tokens);
+bool isHistoryCommand(char**);
 
-void runHistoryCommand(char** tokens);
+void addToHistory(char**);
+
+void runHistoryCommand(char**);
+
+void printHistory(char**);

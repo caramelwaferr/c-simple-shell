@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     userInput = malloc(sizeof(char) * 512); // Allocate some memory for the user's command line input
     char cwd[256];                          // Current working directory
     char *home = getenv("HOME"); // Home directory, Can reduce in future (give straight as argument)
-    char *path[3] = {NULL, getenv("PATH")s}; // Gets the system path
+    char *path[3] = {NULL, getenv("PATH")}; // Gets the system path
     chdir(home);                 // Set current directory to home, so home is the default directory for the shell
     getcwd(cwd, sizeof(cwd));
 
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 
         
         if(tokens[0] != NULL){
-            runCommands(tokens);
+            runCommands(tokens, true);
         }
         
         getcwd(cwd, sizeof(cwd));
