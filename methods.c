@@ -363,35 +363,38 @@ void addAlias(char** tokens){
 
     int existsAlias = 0;
     
-    if (aliasCounter = 10){
+    if (aliasCounter >= MAX_ALIAS){
         fprintf(stderr, "No more aliases can be set.");
     }
 
-    int i, j;
+    int j;
 
-    for(i = 0; i < aliasCounter || existsAlias = 1; i++){
-        if (tokens[1] == alias[i][0]){      // Check if alias already exists
-            int existsAlias = 1;
+    for(int i = 0; i < aliasCounter; i++){
+        if (strcmp(tokens[1], alias[i][0]) == 0){      // Check if alias already exists
+            existsAlias = 1;
             for (j = 2; tokens[j] != NULL; j++) {           // Everything after the alias will be considered the aliased command
-                alias[i][1] = strcat(tokens[j]);  // Copy each token, overwrite previous alias with new command
+                strcpy(alias[i][j], tokens[j]); // Copy each token, overwrite previous alias with new command
             }
             alias[i][j] = NULL;  // Null-terminate the command
+            break;
         }
     }
 
-    if(existsAlias = 1){
-        printf("Previous alias %s has been overwritten by new command.", tokens[1]);
+    if(existsAlias == 1){
+        printf("Previous alias %s has been overwritten.\n", tokens[1]);
         return;
     }
 
     // Code should only get here if alias does not already exist
 
-    int i;
-    for (i = 2; tokens[i] != NULL; i++) {           // Everything after the alias will be considered the aliased command
-        alias[aliasCounter][1] = strcat(tokens[i]);     // Copy each token after the alias name as the aliased command
+    alias[aliasCounter][0] = tokens[1];
+    int k;
+    for (k = 2; tokens[k] != NULL; k++) {           // Everything after the alias will be considered the aliased command
+        strcpy(alias[aliasCounter][k-1], tokens[k]); // Copy each token after the alias name as the aliased command
     }
 
-    alias[aliasCounter][i] = NULL;  // Null-terminate the command
-    aliasCounter++;
+    alias[aliasCounter][k] = NULL;  // Null-terminate the command
+    printf("Alias successfully assigned. %s\n", alias[aliasCounter][0]);
 
+    aliasCounter++;
 }
