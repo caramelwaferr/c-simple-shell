@@ -5,6 +5,7 @@
 //
 #include <stdbool.h>
 #define MAX_HISTORY_SIZE 20
+#define MAX_ALIAS 10
 
 char** parse(char input [512]); // Tokenises the user input, so that the shell can read the input and decide which actions to take, char* tokens[]
 
@@ -27,3 +28,9 @@ void addToHistory(char**);
 void runHistoryCommand(char**);
 
 void printHistory(char**);
+
+void save_history(const char* filename);
+
+void load_history(const char* filename);
+
+void addAlias(char**);

@@ -9,7 +9,10 @@
 
 char* tokens[512];
 char** history[MAX_HISTORY_SIZE];
+char** alias[MAX_ALIAS];
+
 int historyCounter = 0;
+int aliasCounter = 0;
 
 char** parse(char input [512]){
         int i = 1;
@@ -66,6 +69,9 @@ void runCommands(char** tokens, bool newCommand){
     }
     else if(strcmp(tokens[0], "history") == 0){
         printHistory(tokens);
+    }
+    else if(strcmp(tokens[0], "alias") == 0){
+        addAlias(tokens);
     }
     else{
        executeSystemCommand(tokens); 
@@ -162,26 +168,13 @@ bool isHistoryCommand(char** tokens) {
     return false;
 }
 
-// void addToHistory(char** tokens) {
-
-//     if(historyCounter < MAX_HISTORY_SIZE) {
-//         history[historyCounter] = tokens;
-//         historyCounter++;
-//     }
-//     else{
-//         for(int i = 0; i < MAX_HISTORY_SIZE; i++){
-//             history[i] = history[i + 1];
-//         }
-//         history[MAX_HISTORY_SIZE - 1] = tokens; // tokens history[20] = tokens 
-//     }
-// }
-
 void addToHistory(char** tokens) {
     if (historyCounter < MAX_HISTORY_SIZE) {
         // Allocate memory for a new history entry
         history[historyCounter] = malloc(sizeof(char*) * 512);  // Allocate array of string pointers [[malloc],[malloc],[]]
         
         int i;
+
         for (i = 0; tokens[i] != NULL; i++) {
             history[historyCounter][i] = strdup(tokens[i]);  // Copy each token
         }
@@ -213,7 +206,8 @@ void runHistoryCommand(char** tokens) {
     memmove(tokens[0], tokens[0] + sizeof(char), strlen(tokens[0]));  
     char* command = malloc(512);
     command[0] = '\0';
-    if(tokens[0][0] == '!') {
+    if(tokens[0][0] == '!' && historyCounter > 0) {
+        
         for(int i = 0; history[historyCounter-1][i] != NULL; i++){
             strcat(command, history[historyCounter-1][i]);
             strcat(command, " ");
@@ -226,7 +220,7 @@ void runHistoryCommand(char** tokens) {
         memmove(tokens[0], tokens[0] + sizeof(char), strlen(tokens[0]));
         int num = atoi(tokens[0]);
         // printf("%d", num);
-        if(num >= 1 && num <=20) {
+        if(num >= 1 && num <= historyCounter) {
             for(int i = 0; history[historyCounter-num][i] != NULL; i++){
                 strcat(command, history[historyCounter-num][i]);
                 strcat(command, " ");
@@ -245,7 +239,7 @@ void runHistoryCommand(char** tokens) {
     }
     else{ 
         int num = atoi(tokens[0]);
-        if(num >= 1 && num <=20) {
+        if (num >= 1 && num <= historyCounter) {
             for(int i = 0; history[num-1][i] != NULL; i++){
                 strcat(command, history[num-1][i]);
                 strcat(command, " ");
@@ -276,4 +270,128 @@ void printHistory(char** tokens){
         
     }
     free(command);
+}
+
+void save_history(const char* filename) {
+
+    FILE *file = fopen(filename, "w");
+    if (!file) {
+        perror("Error - could not open history file");
+        return;
+    }
+    
+    // Write the number of history entries at the top of the file
+    fprintf(file, "%d\n", historyCounter);
+    
+    // Write each command as a line in the file
+    for (int i = 0; i < historyCounter; i++) {
+        // Convert tokens back to a command line
+        char command[512] = "";
+        for (int j = 0; history[i][j] != NULL; j++) {
+            if (j > 0) {
+                strcat(command, " ");
+            }
+            strcat(command, history[i][j]);
+        }
+        // Write the command to the file
+        fprintf(file, "%s\n", command);
+    }
+    
+    fclose(file);
+    printf("History saved to %s\n", filename);
+}
+
+
+void load_history(const char* filename) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        perror("Error - could not open history file");
+        return;
+    }
+    
+    // Free existing history if any
+    for (int i = 0; i < historyCounter; i++) {
+        for (int j = 0; (history)[i][j] != NULL; j++) {
+            free((history)[i][j]);
+        }
+        free((history)[i]);
+    }
+
+    // Read the number of history entries
+    int numEntries;
+    if (fscanf(file, "%d\n", &numEntries) != 1) {
+        perror("Error reading history count");
+        fclose(file);
+        return;
+    }
+    
+    historyCounter = 0;
+    char line[512];
+    
+    // Read each line and add it to history
+    while (historyCounter < numEntries && historyCounter < MAX_HISTORY_SIZE && fgets(line, sizeof(line), file)) {
+        // Remove newline if present
+        size_t len = strlen(line);
+        if (len > 0 && line[len-1] == '\n') {
+            line[len-1] = '\0';
+        }
+        
+        // Parse the line into tokens
+        char lineCopy[512];
+        strcpy(lineCopy, line);
+        char** parsed = parse(lineCopy);
+        
+        // Create a new history entry
+        (history)[historyCounter] = malloc(sizeof(char*) * 512);
+        
+        // Copy each token
+        int i;
+        for (i = 0; parsed[i] != NULL; i++) {
+            (history)[historyCounter][i] = strdup(parsed[i]);
+        }
+        (history)[historyCounter][i] = NULL;  // Null-terminate
+        
+        (historyCounter)++;
+    }
+    
+    fclose(file);
+    printf("Loaded %d commands from history file %s\n", historyCounter, filename);
+}
+
+void addAlias(char** tokens){
+    alias[aliasCounter] = malloc(sizeof(char*) * 512);  // Allocate array of string pointers [[malloc],[malloc],[]]
+
+    int existsAlias = 0;
+    
+    if (aliasCounter = 10){
+        fprintf(stderr, "No more aliases can be set.");
+    }
+
+    int i, j;
+
+    for(i = 0; i < aliasCounter || existsAlias = 1; i++){
+        if (tokens[1] == alias[i][0]){      // Check if alias already exists
+            int existsAlias = 1;
+            for (j = 2; tokens[j] != NULL; j++) {           // Everything after the alias will be considered the aliased command
+                alias[i][1] = strcat(tokens[j]);  // Copy each token, overwrite previous alias with new command
+            }
+            alias[i][j] = NULL;  // Null-terminate the command
+        }
+    }
+
+    if(existsAlias = 1){
+        printf("Previous alias %s has been overwritten by new command.", tokens[1]);
+        return;
+    }
+
+    // Code should only get here if alias does not already exist
+
+    int i;
+    for (i = 2; tokens[i] != NULL; i++) {           // Everything after the alias will be considered the aliased command
+        alias[aliasCounter][1] = strcat(tokens[i]);     // Copy each token after the alias name as the aliased command
+    }
+
+    alias[aliasCounter][i] = NULL;  // Null-terminate the command
+    aliasCounter++;
+
 }
