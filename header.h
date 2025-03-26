@@ -11,7 +11,7 @@ char** parse(char input [512]); // Tokenises the user input, so that the shell c
 
 void clearBuffer(char *);
 
-void runCommands(char**, bool); // Runs custom commands that aren't executables.
+void runCommands(char**, bool, int); // Runs custom commands that aren't executables.
 
 int executeSystemCommand(char **);
 
@@ -29,8 +29,20 @@ void runHistoryCommand(char**);
 
 void printHistory(char**);
 
-void save_history(const char* filename);
+void saveHistory(const char* filename);
 
-void load_history(const char* filename);
+void loadHistory(const char* filename);
 
 void addAlias(char**);
+
+bool removeAlias(char**);
+
+void printAliases(void);
+
+bool isAlias(char**);
+
+bool runAlias(char**, int);
+
+void saveAlias(const char* filename);
+
+void loadAlias(const char* filename);
